@@ -24,7 +24,8 @@ The dataset is stored in a comma-separated-value (CSV) file and there are a tota
 
 Loading and Preprocessing the Data
 ----------------------------------
-```{r}
+
+```r
 get.data <- function (){
         if (!file.exists("data")) {
         message("Creating Data folder in working directory")
@@ -49,27 +50,48 @@ Steps Taken Per Day
 -------------------
 
 ### Histogram of the total number of steps taken per day
-```{r, Total_Steps_Per_Day, echo = TRUE,fig.height=6, fig.weight=6}
+
+```r
 require(ggplot2)
+```
+
+```
+## Loading required package: ggplot2
+```
+
+```r
 activityAgg <- aggregate(steps ~ date, activity, sum, na.rm = TRUE)
 qplot(steps, data = activityAgg, binwidth = 1400) +
 theme_bw()
 ```
 
+![plot of chunk Total_Steps_Per_Day](figure/Total_Steps_Per_Day.png) 
+
 ### Mean steps per day:
-```{r, echo=TRUE}
+
+```r
 median(activityAgg$steps)
 ```
+
+```
+## [1] 10765
+```
 ### Median steps per day:
-```{r, echo=TRUE}
+
+```r
 mean(activityAgg$steps)
+```
+
+```
+## [1] 10766
 ```
 
 Average Daily Activity Pattern
 ------------------------------
 
 ### Time series plot of the 5-minute interval and the average number of steps taken, averaged across all days
-```{r, Ave_Steps_Per_Interval, echo=TRUE, fig.height=6, fig.weight=6}
+
+```r
 intervalAve <- aggregate(steps ~ interval, activity, mean, na.rm = TRUE)
 ggplot(intervalAve, aes(x=interval,y=steps)) + 
 geom_line(color="purple",size=1) +  
@@ -77,17 +99,29 @@ labs(x="Interval",y="Average Number of Steps") +
 theme_bw()
 ```
 
+![plot of chunk Ave_Steps_Per_Interval](figure/Ave_Steps_Per_Interval.png) 
+
 ### 5-minute interval containing the maximum number of steps (averaged across all days)
-```{r, echo=TRUE}
+
+```r
 intervalAve[which.max(intervalAve$steps),]$interval
+```
+
+```
+## [1] 835
 ```
 
 Imputing Missing Values
 -----------------------
 
 ### Number of NA (missing) step values in the dataset
-```{r, echo=TRUE}
+
+```r
 sum(is.na(activity))
+```
+
+```
+## [1] 2304
 ```
 
 ### Method for imputing missing step values
@@ -95,7 +129,8 @@ sum(is.na(activity))
 Missing step values (NA) were replaced by the mean number of steps taken for the corresponding time interval and weekday.  For example, if the mean number of steps taken in interval 5 on Mondays was 20 across the entire dataset, all NA entries for interval 5 on Mondays would be replaced with 20.
 
 ### A new dataset is created using the imputed values
-```{r, echo=TRUE}
+
+```r
 intdayAve <- aggregate(steps ~ interval + day, activity, mean, na.rm = TRUE)
 activityImpute <- merge(activity, intdayAve, by=c("interval", "day"))
 activityImpute <- transform(activityImpute, steps.x = ifelse(is.na(steps.x),steps.y,steps.x))
@@ -106,20 +141,33 @@ activityImpute <- activityImpute[order(activityImpute$date, activityImpute$inter
 ```
 
 ### Histogram of the total number of steps taken per day with imputed values
-```{r, Imputed_Total_Steps_Per_Day, echo=TRUE}
+
+```r
 activityImputeAgg <- aggregate(steps ~ date, activityImpute, sum, na.rm = TRUE)
 qplot(steps, data = activityImputeAgg, binwidth = 1400) +
 theme_bw()
 ```
 
+![plot of chunk Imputed_Total_Steps_Per_Day](figure/Imputed_Total_Steps_Per_Day.png) 
+
 ### Mean steps per day with imputed values:
-```{r, echo=TRUE}
+
+```r
 median(activityImputeAgg$steps)
 ```
 
+```
+## [1] 11015
+```
+
 ### Median steps per day with imputed values:
-```{r, echo=TRUE}
+
+```r
 mean(activityImputeAgg$steps)
+```
+
+```
+## [1] 10821
 ```
 
 By including the imputed values in the dataset, both the median and the mean total number of steps taken per day increase, as expected. A comparison of histograms
@@ -129,7 +177,8 @@ of data with the imputed data appears to be more normal.
 Investigating Differences in Activity Patterns Between Weekdays and Weekends
 ----------------------------------------------------------------------------
 
-```{r, Compare_Weekend_Weekday, echo=TRUE, fig.height=6, fig.weight=6}
+
+```r
 activityImpute$daytype <- ifelse(activityImpute$day %in% c("Saturday", "Sunday"),"Weekend", "Weekday")
 activityImputeDayAgg <- aggregate(steps ~ interval + daytype, activityImpute, mean)
 ggplot(activityImputeDayAgg, aes(x=interval,y=steps)) + 
@@ -138,3 +187,5 @@ facet_wrap(~daytype, nrow=2, ncol=1) +
 labs(x="Interval",y="Number of Steps") +
 theme_bw()
 ```
+
+![plot of chunk Compare_Weekend_Weekday](figure/Compare_Weekend_Weekday.png) 
